@@ -49,6 +49,9 @@ services:
       dockerfile: Dockerfile
     expose:
       - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.web.loadbalancer.server.port=80"
     environment:
       CMS_DEV_MODE: "false"
       CMS_SERVER_NAME: superxibo.augu.work
