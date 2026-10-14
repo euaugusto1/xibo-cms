@@ -60,8 +60,9 @@ services:
     restart: always
 
   quickchart:
-    # Official multi-arch image (ARM64 native - fixes 'exec format error' caused by amd64 ianw/quickchart)
-    image: quickchart/quickchart:latest
+    # Build QuickChart natively on ARM64 directly from official repository
+    build:
+      context: https://github.com/typpo/quickchart.git
     restart: always
 
 volumes:
