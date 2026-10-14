@@ -51,5 +51,4 @@ services:
       - API_URL=http://localhost/swagger.json
 
   quickchart:
-    # Official multi-arch image (supporting linux/arm64)
-    image: quickchart/quickchart:latest
+    image: ianw/quickchart:latest
