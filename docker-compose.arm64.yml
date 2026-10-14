@@ -6,7 +6,7 @@ services:
   db:
     image: mysql:8.4
     volumes:
-      - db-data:/var/lib/mysql
+      - xibo-db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
       MYSQL_DATABASE: cms
@@ -46,12 +46,12 @@ services:
       MEMCACHED_HOST: memcached
       CMS_QUICK_CHART_URL: http://quickchart:3400
     volumes:
-      - cms-library:/var/www/cms/library
-      - cms-custom:/var/www/cms/custom
-      - cms-backup:/var/www/backup
-      - cms-web-custom:/var/www/cms/web/theme/custom
-      - cms-userscripts:/var/www/cms/web/userscripts
-      - cms-ca-certs:/var/www/cms/ca-certs
+      - xibo-library:/var/www/cms/library
+      - xibo-custom:/var/www/cms/custom
+      - xibo-backup:/var/www/backup
+      - xibo-theme:/var/www/cms/web/theme/custom
+      - xibo-userscripts:/var/www/cms/web/userscripts
+      - xibo-cacerts:/var/www/cms/ca-certs
     restart: always
 
   memcached:
@@ -60,14 +60,15 @@ services:
     restart: always
 
   quickchart:
-    image: ianw/quickchart:latest
+    # Official multi-arch image (ARM64 native - fixes 'exec format error' caused by amd64 ianw/quickchart)
+    image: quickchart/quickchart:latest
     restart: always
 
 volumes:
-  db-data:
-  cms-library:
-  cms-custom:
-  cms-backup:
-  cms-web-custom:
-  cms-userscripts:
-  cms-ca-certs:
+  xibo-db:
+  xibo-library:
+  xibo-custom:
+  xibo-backup:
+  xibo-theme:
+  xibo-userscripts:
+  xibo-cacerts:
