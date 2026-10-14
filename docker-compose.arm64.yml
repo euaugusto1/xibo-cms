@@ -6,14 +6,15 @@ services:
   db:
     image: mysql:8.4
     volumes:
-      - ./containers/db:/var/lib/mysql
+      - db-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "cms"
-    # Tuned for ARM instances with constrained memory (1-4 GB RAM)
-    command: --default-authentication-plugin=mysql_native_password --innodb-buffer-pool-size=256M
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_DATABASE: cms
+    # Tuning for ARM instances (removed obsolete default-authentication-plugin from MySQL 8.4)
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
     expose:
       - 3306
+    restart: always
 
   xmr:
     # Build XMR natively on ARM64 directly from official repository
@@ -22,24 +23,51 @@ services:
     ports:
       - "9505:9505"
     environment:
-      XMR_DEBUG: "true"
+      XMR_DEBUG: "false"
       IPV6PUBSUPPORT: "false"
+    restart: always
 
   web:
+    # Production multi-stage build: compiles PHP vendor, Webpack, and Vite assets
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./:/var/www/cms
+      dockerfile: Dockerfile
     expose:
       - 80
     environment:
-      CMS_DEV_MODE: "true"
-      MYSQL_DATABASE: "cms"
+      CMS_DEV_MODE: "false"
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_DATABASE: cms
+      XMR_HOST: xmr
+      CMS_USE_MEMCACHED: "true"
+      MEMCACHED_HOST: memcached
+      CMS_QUICK_CHART_URL: http://quickchart:3400
+    volumes:
+      - cms-library:/var/www/cms/library
+      - cms-custom:/var/www/cms/custom
+      - cms-backup:/var/www/backup
+      - cms-web-custom:/var/www/cms/web/theme/custom
+      - cms-userscripts:/var/www/cms/web/userscripts
+      - cms-ca-certs:/var/www/cms/ca-certs
+    restart: always
 
   memcached:
     image: memcached:alpine
     command: memcached -m 15
+    restart: always
 
   quickchart:
     image: ianw/quickchart:latest
+    restart: always
+
+volumes:
+  db-data:
+  cms-library:
+  cms-custom:
+  cms-backup:
+  cms-web-custom:
+  cms-userscripts:
+  cms-ca-certs:
