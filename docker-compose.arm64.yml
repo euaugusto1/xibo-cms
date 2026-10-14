@@ -63,7 +63,6 @@ services:
       XMR_HOST: xmr
       CMS_USE_MEMCACHED: "false"
       CMS_QUICK_CHART_URL: http://quickchart:3400
-      CMS_FORCE_DEBUG: "true"
     volumes:
       - xibo-library:/var/www/cms/library
       - xibo-custom:/var/www/cms/custom

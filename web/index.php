@@ -53,14 +53,6 @@ register_shutdown_function(function () {
     }
 });
 
-if (isset($_GET['test_ping'])) {
-    header('Content-Type: text/plain');
-    echo "PONG - index.php reachable!\n";
-    echo "PHP Version: " . phpversion() . "\n";
-    echo "Time: " . date('Y-m-d H:i:s') . "\n";
-    exit;
-}
-
 // Enable/Disable logging
 if (\Xibo\Helper\Environment::isDevMode() || \Xibo\Helper\Environment::isForceDebugging()) {
     error_reporting(E_ALL);
