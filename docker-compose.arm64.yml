@@ -8,10 +8,25 @@ services:
     volumes:
       - xibo-db:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: cms
-    # Enable legacy mysql_native_password for existing database users in MySQL 8.4
-    command: --mysql-native-password=ON --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
+    # Auto-synchronize root and cms user password on existing database volume + enable mysql_native_password
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        echo "CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" > /tmp/init.sql
+        echo "ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" >> /tmp/init.sql
+        echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;" >> /tmp/init.sql
+        echo "CREATE USER IF NOT EXISTS 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" >> /tmp/init.sql
+        echo "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" >> /tmp/init.sql
+        echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;" >> /tmp/init.sql
+        echo "CREATE USER IF NOT EXISTS 'cms'@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" >> /tmp/init.sql
+        echo "ALTER USER 'cms'@'%' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PASSWORD}';" >> /tmp/init.sql
+        echo "GRANT ALL PRIVILEGES ON *.* TO 'cms'@'%';" >> /tmp/init.sql
+        echo "FLUSH PRIVILEGES;" >> /tmp/init.sql
+        chmod 644 /tmp/init.sql
+        exec docker-entrypoint.sh mysqld --mysql-native-password=ON --init-file=/tmp/init.sql --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
     expose:
       - 3306
     restart: always
