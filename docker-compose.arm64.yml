@@ -51,14 +51,14 @@ services:
       - 80
     environment:
       CMS_DEV_MODE: "false"
+      CMS_SERVER_NAME: superxibo.augu.work
       MYSQL_HOST: db
       MYSQL_PORT: 3306
       MYSQL_USER: root
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root}
       MYSQL_DATABASE: cms
       XMR_HOST: xmr
-      CMS_USE_MEMCACHED: "true"
-      MEMCACHED_HOST: memcached
+      CMS_USE_MEMCACHED: "false"
       CMS_QUICK_CHART_URL: http://quickchart:3400
     volumes:
       - xibo-library:/var/www/cms/library

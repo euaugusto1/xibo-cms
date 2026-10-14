@@ -480,6 +480,7 @@ echo "Configure Apache"
 
 # Configure Apache TimeOut
 sed -i "s/\bTimeout\b .*$/Timeout $CMS_APACHE_TIMEOUT/" /etc/apache2/apache2.conf
+grep -q "ServerName localhost" /etc/apache2/apache2.conf || echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Configure Indexes
 if [ "$CMS_APACHE_OPTIONS_INDEXES" == "true" ]
