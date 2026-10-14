@@ -1,14 +1,10 @@
-# Xibo CMS Docker Compose configuration for ARM64 architecture (e.g. AWS Graviton, Oracle Cloud Ampere A1, Hetzner ARM)
-# Usage:
-#   docker compose -f docker-compose.arm64.yml up -d --build
+# Xibo CMS Docker Compose configuration for ARM64 architecture on Coolify / VPS
 #
 version: "3"
 
 services:
   db:
     image: mysql:8.4
-    ports:
-      - "3315:3306"
     volumes:
       - ./containers/db:/var/lib/mysql
     environment:
@@ -16,6 +12,8 @@ services:
       MYSQL_DATABASE: "cms"
     # Tuned for ARM instances with constrained memory (1-4 GB RAM)
     command: --default-authentication-plugin=mysql_native_password --innodb-buffer-pool-size=256M
+    expose:
+      - 3306
 
   xmr:
     # Build XMR natively on ARM64 directly from official repository
@@ -33,8 +31,8 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - ./:/var/www/cms
-    ports:
-      - "80:80"
+    expose:
+      - 80
     environment:
       CMS_DEV_MODE: "true"
       MYSQL_DATABASE: "cms"
@@ -43,12 +41,6 @@ services:
     image: memcached:alpine
     command: memcached -m 15
 
-  swagger:
-    image: swaggerapi/swagger-ui:latest
-    ports:
-      - "8080:8080"
-    environment:
-      - API_URL=http://localhost/swagger.json
-
   quickchart:
-    image: ianw/quickchart:latest
+    # Official multi-arch image (native linux/arm64)
+    image: quickchart/quickchart:latest
