@@ -42,5 +42,4 @@ services:
     command: memcached -m 15
 
   quickchart:
-    # Official multi-arch image (native linux/arm64)
-    image: quickchart/quickchart:latest
+    image: ianw/quickchart:latest
