@@ -351,6 +351,7 @@ class Environment
      */
     public static function isForceDebugging()
     {
-        return (isset($_SERVER['CMS_FORCE_DEBUG']) && $_SERVER['CMS_FORCE_DEBUG'] === 'true');
+        return (isset($_SERVER['CMS_FORCE_DEBUG']) && $_SERVER['CMS_FORCE_DEBUG'] === 'true')
+            || (getenv('CMS_FORCE_DEBUG') === 'true');
     }
 }

@@ -31,6 +31,36 @@ define('PROJECT_ROOT', realpath(__DIR__ . '/..'));
 
 require PROJECT_ROOT . '/vendor/autoload.php';
 
+// Diagnostic handlers: ensure ANY fatal error, parse error, or uncaught exception displays detailed error info
+set_exception_handler(function (\Throwable $e) {
+    http_response_code(500);
+    echo "<h1>Xibo Fatal Exception</h1>";
+    echo "<p><b>Message:</b> " . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><b>File:</b> " . $e->getFile() . ":" . $e->getLine() . "</p>";
+    echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    error_log("[XIBO FATAL EXCEPTION] " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+    exit;
+});
+
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        http_response_code(500);
+        echo "<h1>Xibo Fatal Error</h1>";
+        echo "<p><b>Message:</b> " . htmlspecialchars($error['message']) . "</p>";
+        echo "<p><b>File:</b> " . $error['file'] . ":" . $error['line'] . "</p>";
+        error_log("[XIBO FATAL ERROR] " . $error['message'] . " in " . $error['file'] . ":" . $error['line']);
+    }
+});
+
+if (isset($_GET['test_ping'])) {
+    header('Content-Type: text/plain');
+    echo "PONG - index.php reachable!\n";
+    echo "PHP Version: " . phpversion() . "\n";
+    echo "Time: " . date('Y-m-d H:i:s') . "\n";
+    exit;
+}
+
 // Enable/Disable logging
 if (\Xibo\Helper\Environment::isDevMode() || \Xibo\Helper\Environment::isForceDebugging()) {
     error_reporting(E_ALL);
@@ -137,7 +167,7 @@ require PROJECT_ROOT . '/lib/routes-spa.php';
 // Run App
 try {
     $app->run();
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     echo 'Fatal Error - sorry this shouldn\'t happen. ';
     echo '<br>' . $e->getMessage();
 
