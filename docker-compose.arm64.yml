@@ -10,8 +10,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
       MYSQL_DATABASE: cms
-    # Tuning for ARM instances (removed obsolete default-authentication-plugin from MySQL 8.4)
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
+    # Enable legacy mysql_native_password for existing database users in MySQL 8.4
+    command: --mysql-native-password=ON --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --innodb-buffer-pool-size=256M
     expose:
       - 3306
     restart: always
